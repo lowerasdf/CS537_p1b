@@ -16,6 +16,7 @@
 #include "file.h"
 #include "fcntl.h"
 
+struct spinlock iocount_lock;
 int iocount = 0;
 
 // Fetch the nth word-sized system call argument as a file descriptor
@@ -71,7 +72,9 @@ sys_dup(void)
 int
 sys_read(void)
 {
+  acquire(&iocount_lock);
   iocount++;
+  release(&iocount_lock);
   struct file *f;
   int n;
   char *p;
@@ -84,7 +87,9 @@ sys_read(void)
 int
 sys_write(void)
 {
+  acquire(&iocount_lock);
   iocount++;
+  release(&iocount_lock);
   struct file *f;
   int n;
   char *p;
